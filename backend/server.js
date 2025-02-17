@@ -40,6 +40,22 @@ app.get("/api/joke", async (req, res) => {
     }
 });
 
+app.post("/api/joke/vote", async (req, res) => {
+    const { jokeID, emoji } = req.body;
+
+    try {
+        const joke = await Joke.findOneAndUpdate(
+            { jokeID },
+            { $inc: { [`votes.${emoji}`]: 1 } },
+            { new: true }
+        );
+
+        joke ? res.json(joke) : res.status(404).json({ message: "Joke not found" })
+    } catch (error) {
+        res.status(500).json({ message: "Error updating vote" })
+    }
+});
+
 // Serve Frontend
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
